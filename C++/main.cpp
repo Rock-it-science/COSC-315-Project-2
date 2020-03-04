@@ -86,7 +86,6 @@ class BoundedBuffer{
         lengthVec.insert(lengthVec.begin()+offset, rand()%maxLength);
         offset++;
         id++;
-        const time_t ctt = time(0);
         std::cout << "\033[1;31mProducer\033[0m added request: ID=" << idVec[offset-1] << ", length=" << lengthVec[offset-1] << "\n";
         
         //Release mutex
