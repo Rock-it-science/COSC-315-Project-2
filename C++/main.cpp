@@ -8,27 +8,7 @@
 #include <pthread.h>
 using namespace std;
 
-/* Choose from below presets for different modes 
-*     They change the N value and the max value for sleep functions
-*  Uncomment one block to activate mode
-*/
-
-//Rapid chaos
-// #define N 20
-// #define maxLength 1000
-// #define prodMaxWait 100
-
-//Regular
-#define N 3
-#define maxLength 5000
-#define prodMaxWait 3000
-
-//Slow
-// #define N 3
-// #define maxLength 13000
-// #define prodMaxWait 9000
-
-
+int N, maxLength, maxProdWait;
 
 //Semaphore setup 
 // Some code from here: https://stackoverflow.com/questions/4792449/c0x-has-no-semaphores-how-to-synchronize-threads
@@ -79,22 +59,21 @@ Request queue:
 */
 class BoundedBuffer{
     public:
-        int id;
         //Multidimensional arrays as class variables is hard, so I use 2 arrays: 1 for ids one for lengths
         std::vector<int> idVec;
         std::vector<int> lengthVec;
-        int idOffset;
-        int lengthOffset;
+        int id, offset, maxLength, maxProdWait;
 
-    BoundedBuffer(int n){
+    BoundedBuffer(int n, int maxL, int maxProdW){
         mutex.value = 1;
         empty.value = n;
         id = 0;
         full.value = 0;
         idVec.resize(n);
         lengthVec.resize(n);
-        idOffset = 0;
-        lengthOffset = 0;
+        offset = 0;
+        maxLength = maxL;
+        maxProdWait = maxProdW;
     }
 
     void Producer(){
@@ -103,13 +82,12 @@ class BoundedBuffer{
         mutex.Wait();
 
         //Generate request and add to queue (increment queueVal and id)
-        idVec.insert(idVec.begin()+idOffset, id);
-        lengthVec.insert(lengthVec.begin()+lengthOffset, rand()%maxLength);
-        idOffset++;
-        lengthOffset++;
+        idVec.insert(idVec.begin()+offset, id);
+        lengthVec.insert(lengthVec.begin()+offset, rand()%maxLength);
+        offset++;
         id++;
         const time_t ctt = time(0);
-        std::cout << "\033[1;31mProducer\033[0m added request: ID=" << idVec[idOffset-1] << ", length=" << lengthVec[lengthOffset-1] << "\n";
+        std::cout << "\033[1;31mProducer\033[0m added request: ID=" << idVec[offset-1] << ", length=" << lengthVec[offset-1] << "\n";
         
         //Release mutex
         mutex.Signal();
@@ -124,10 +102,9 @@ class BoundedBuffer{
         mutex.Wait();
 
         //Remove item from buffer
-        int itemId = idVec[idOffset-1];
-        int itemTime = lengthVec[lengthOffset-1];
-        idOffset--;
-        lengthOffset--;
+        int itemId = idVec[offset-1];
+        int itemTime = lengthVec[offset-1];
+        offset--;
         std::cout << "\033[1;34mConsumer\033[m reading request: ID=" << itemId << ", length=" << itemTime <<"\n";
 
         //Release mutex
@@ -144,8 +121,29 @@ class BoundedBuffer{
         Semaphore full;
 };
 
+
+//"Get" functions for bb parameters
+int getN(){
+    std::cout << "N: ";
+    std::cin >> N;
+    return N;
+}
+
+int getmaxLength(){
+    std::cout << "Max length: ";
+    std::cin >> maxLength;
+    return maxLength;
+}
+
+int getMaxProdWait(){
+    std::cout << "Max producer wait: ";
+    std::cin >> maxProdWait;
+    return maxProdWait;
+}
+
 //Global object of boundedBuffer for use in standalone functions
-BoundedBuffer bb(N);
+BoundedBuffer bb(getN(), getmaxLength(), getMaxProdWait());
+
 
 //Called by master threads
 static void *master(void *arg){
@@ -157,7 +155,7 @@ static void *master(void *arg){
         bb.Producer();
 
         //Sleep for random amount of time (<1 sec) and restart
-        int prodSleep = rand()%prodMaxWait;
+        int prodSleep = rand()%maxProdWait;
         std::cout << "Producer: sleeping for " << prodSleep << " ms\n";
         std::this_thread::sleep_for(std::chrono::milliseconds(prodSleep));
     }
@@ -170,7 +168,7 @@ static void *slave(void *arg){
     //Loop forever
     while(true){
         //While queue is empty, be idle
-        while(bb.idOffset == 0){
+        while(bb.offset == 0){
             std:this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
@@ -188,6 +186,8 @@ static void *slave(void *arg){
 }
 
 int main(){
+
+    //Set up thread variables
     pthread_t threads[N];
     int rc;
     intptr_t id;
