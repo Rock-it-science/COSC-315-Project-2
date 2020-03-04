@@ -24,13 +24,14 @@ public class Buffer {
 				}
 			}
 			buffer[i] = r;//add request to buffer
+			counter++;
 		}
 	}
 	
 	public synchronized Request Take() {
-		Request holder = new Request();//placeholder request(returns a 0 length request if buffer is empty)
+		Request holder = null; //returns null if buffer is empty
 		for(int i = 0; i < buffer.length; i++) {
-			if(buffer[i]!=null) {
+			if(buffer[i]!=null) {//looks for first non-empty part of buffer(this implementation could potentially lead to starvation of requests)
 				holder = buffer[i];
 				buffer[i] = null;
 				break;

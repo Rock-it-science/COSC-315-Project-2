@@ -15,12 +15,17 @@ public class Slave implements Runnable{
 	public void run() {
 		while(true) {
 			heldReq = bBuffer.Take();
-			System.out.println("Slave number " +id +" Resolving request id "+heldReq.getID());
-			try {
-				Thread.sleep(heldReq.getTime());
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(heldReq==null) {
+				System.out.println("Buffer currently empty");
+			}
+			else {
+				System.out.println("Slave number " +id +" Resolving request id "+heldReq.getID());
+				try {
+					Thread.sleep(heldReq.getTime());
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
