@@ -1,5 +1,5 @@
 
-public class Master implements Runnable{
+public class Master implements Runnable {
 	Thread masterThread;
 	private Buffer bBuffer;
 	private Slave[] slaveList;
@@ -35,14 +35,11 @@ public class Master implements Runnable{
 			slaveList[i] = new Slave(bBuffer, j);
 			System.out.println("Slave "+j +" created");
 		}
-		for(int i = 0; i < n; i++) {
-			slaveList[i].run();
-		}
 		while(true) {
 			int currSleep = (int)(Math.random()*sleep);
-			int reqDurr = (int)(Math.random()*maxRequest);
+			int reqDurr = (int)(Math.random()*(maxRequest-1000)+1000);
 			Request newReq = new Request(rid, reqDurr);
-			System.out.println("Generating request id " +rid +"with duration of " +reqDurr);
+			System.out.println("Generating request id " +rid +" with duration of " +reqDurr);
 			rid++;
 			bBuffer.Add(newReq);
 			try {

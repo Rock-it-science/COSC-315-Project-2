@@ -1,5 +1,5 @@
 
-public class Slave implements Runnable{
+public class Slave implements Runnable {
 	
 	private Thread slaveThread;
 	private int id;
@@ -9,26 +9,27 @@ public class Slave implements Runnable{
 		bBuffer = b;
 		id = i;
 		slaveThread = new Thread(this);
+		System.out.println("active " + id);
+		slaveThread.start();
 	}
 	
 	@Override
 	public void run() {
-		while(true) {
-			heldReq = bBuffer.Take();
-			if(heldReq==null) {
-				System.out.println("Buffer currently empty");
-			}
-			else {
-				System.out.println("Slave number " +id +" Resolving request id "+heldReq.getID());
-				try {
+		try {
+			while(true) {
+				heldReq = bBuffer.Take();
+				if(heldReq==null) {
+					//System.out.println("Buffer currently empty " + id);
+					//slaveThread.sleep(1000);
+				}
+				else {
+					System.out.println("Slave number " +id +" Resolving request id "+heldReq.getID());
 					Thread.sleep(heldReq.getTime());
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			}
+		}catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
-	
-	
 }

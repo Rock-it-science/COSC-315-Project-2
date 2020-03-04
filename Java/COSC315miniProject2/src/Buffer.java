@@ -9,6 +9,7 @@ public class Buffer {
 	
 	public synchronized void Add(Request r) {
 		if(isFull()) {
+			System.out.println("Buffer full");
 			try {
 				wait();//master sleeps if buffer is full
 			} catch (InterruptedException e) {
@@ -34,6 +35,7 @@ public class Buffer {
 			if(buffer[i]!=null) {//looks for first non-empty part of buffer(this implementation could potentially lead to starvation of requests)
 				holder = buffer[i];
 				buffer[i] = null;
+				counter--;
 				break;
 			}
 		}

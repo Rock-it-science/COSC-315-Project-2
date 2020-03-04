@@ -1,7 +1,7 @@
 import java.util.Scanner;
 public class Base {
 
-	public static void main(String[] args) {
+	public static void main(String[] args){
 		Scanner input = new Scanner(System.in);
 		Integer bufferSize = 0;
 		Integer timerLength = 0;
