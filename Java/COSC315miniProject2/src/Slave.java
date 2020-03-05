@@ -9,7 +9,7 @@ public class Slave implements Runnable {
 		bBuffer = b;
 		id = i;
 		slaveThread = new Thread(this);
-		System.out.println("active " + id);
+		System.out.println("Starting slave no." + id);
 		slaveThread.start();
 	}
 	
@@ -17,18 +17,14 @@ public class Slave implements Runnable {
 	public void run() {
 		try {
 			while(true) {
-				heldReq = bBuffer.Take();
-				if(heldReq==null) {
-					//System.out.println("Buffer currently empty " + id);
-					//slaveThread.sleep(1000);
-				}
-				else {
-					System.out.println("Slave number " +id +" Resolving request id "+heldReq.getID());
+				heldReq = bBuffer.Take(); //Takes a Request from Buffer
+				if(heldReq!=null) {
+					System.out.println("Slave number " + id + " Resolving request id " + heldReq.getID());
 					Thread.sleep(heldReq.getTime());
+					System.out.println("Slave number " + id + " Resolved request id " + heldReq.getID());
 				}
 			}
 		}catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

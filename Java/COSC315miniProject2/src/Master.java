@@ -15,45 +15,40 @@ public class Master implements Runnable {
 		bBuffer = new Buffer(bufferSize);
 		System.out.println("Initializing with default buffer of size 8, a 5 second requests, and a 3 second sleep");
 		masterThread = new Thread(this);
-		Run(8);
+		masterThread.start();
 	}
 	
-	public Master(int n, int t, int s) {
-		bBuffer = new Buffer(n);
-		bufferSize = n;
-		maxRequest = t*1000;
-		sleep = s*1000;
-		System.out.println("Initializing with buffer of size " +n +", a " +t +" second timer, and a " + t +" second sleep");
+	//initialize master thread with parameters
+	public Master(int bufferSize, int timerLength, int sleepLength) {
+		bBuffer = new Buffer(bufferSize);
+		this.bufferSize = bufferSize;
+		maxRequest = timerLength*1000;
+		sleep = sleepLength*1000;
+		System.out.println("Initializing with buffer of size " + bufferSize +", a " + timerLength +" second timer, and a " + sleepLength +" second sleep");
 		masterThread = new Thread(this);
-		Run(n);
-	}
-	
-	private void Run(int n) {
-		slaveList = new Slave[n];//Create slaves
-		for(int i = 0; i < n; i++) {
-			int j = i+1;
-			slaveList[i] = new Slave(bBuffer, j);
-			System.out.println("Slave "+j +" created");
-		}
-		while(true) {
-			int currSleep = (int)(Math.random()*sleep);
-			int reqDurr = (int)(Math.random()*(maxRequest-1000)+1000);
-			Request newReq = new Request(rid, reqDurr);
-			System.out.println("Generating request id " +rid +" with duration of " +reqDurr);
-			rid++;
-			bBuffer.Add(newReq);
-			try {
-				Thread.sleep(currSleep);//sleep random amount of seconds
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+		masterThread.start();
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		
+		slaveList = new Slave[bufferSize]; //Create slaves
+		for(int i = 0; i < bufferSize; i++) {
+			int j = i+1;
+			slaveList[i] = new Slave(bBuffer, j);
+			System.out.println("Slave "+ j +" created");
+		}
+		while(true) {
+			int currSleep = (int)(Math.random()*sleep); //random sleep duration within max sleep duration
+			int reqDurr = (int)(Math.random()*(maxRequest-1000)+1000); //random request duration within 1 to max request duration
+			Request newReq = new Request(rid, reqDurr); //make a new request
+			System.out.println("Generating request id " + rid +" with duration of " +reqDurr);
+			rid++;
+			bBuffer.Add(newReq); //add new request to buffer
+			try {
+				Thread.sleep(currSleep); //sleep random amount of seconds
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

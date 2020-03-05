@@ -9,7 +9,7 @@ public class Base {
 		boolean bufferMade = false;
 		boolean timerMade = false;
 		boolean sleepMade = false;
-		while(!bufferMade) {
+		while(!bufferMade) { //loops until user inputs a correct buffer size
 			System.out.println("Input buffer size: ");
 			String buff = input.nextLine();
 			try {
@@ -20,7 +20,7 @@ public class Base {
 				System.out.println("Please input integers only.");
 			}
 		}
-		while(!timerMade) {
+		while(!timerMade) { //loops until user inputs a correct timer length
 			System.out.println("Input max request time: ");
 			String time = input.nextLine();
 			try {
@@ -31,7 +31,7 @@ public class Base {
 				System.out.println("Please input integers only.");
 			}
 		}
-		while(!sleepMade) {
+		while(!sleepMade) { //loops until user inputs a correct sleep length
 			System.out.println("Input sleep length: ");
 			String sleep = input.nextLine();
 			try {
@@ -43,8 +43,7 @@ public class Base {
 			}
 		}
 		input.close();
-		Master masterThread = new Master(bufferSize, timerLength, sleepLength);
+		Master masterThread = new Master(bufferSize, timerLength, sleepLength); //Creates a master thread with user parameters
 		
 	}
-
 }
